@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scanner de documents avancé</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>📄 Scanner de documents avancé</h1>
+
+  <div class="camera-container">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display: none"></canvas>
+  </div>
+
+  <div class="controls">
+    <button id="capture">📸 Capturer</button>
+    <button id="generate">🧾 Générer PDF</button>
+    <a id="download" download="document.pdf">⬇️ Télécharger</a>
+  </div>
+
+  <div id="pages"></div>
+
+  <!-- Popup d'édition -->
+  <div id="editor-modal" class="modal">
+    <canvas id="edit-canvas"></canvas>
+    <div class="edit-controls">
+      <button id="rotate-left">↩️</button>
+      <button id="rotate-right">↪️</button>
+      <button id="enhance">✨ Améliorer</button>
+      <button id="save-edit">✅ Sauver</button>
+      <button id="cancel-edit">❌ Annuler</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

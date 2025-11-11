@@ -1,0 +1,16 @@
+{
+  "name": "scanner_ucb",
+  "version": "1.0.0",
+  "description": "Application de Numérisation de documents administratifs de l'UCB. Par Nana et Joyce",
+  "main": "scripts.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Michel Bir Mugisho",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

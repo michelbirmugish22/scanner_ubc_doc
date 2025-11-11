@@ -1,0 +1,112 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f8f9fa;
+  margin: 0;
+  padding: 10px;
+}
+
+h1 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+video {
+      width: 90vw;
+  max-width: 640px;
+  border-radius: 10px;
+  border: 3px solid #333;
+  background: #000;
+}
+
+.controls {
+  margin: 15px 0;
+}
+
+button, a {
+  padding: 12px 18px;
+  font-size: 16px;
+  margin: 5px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#pages {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.page {
+  position: relative;
+}
+
+.page img {
+  width: 120px;
+  border-radius: 6px;
+  border: 2px solid #333;
+}
+
+.delete-btn, .edit-btn {
+  position: absolute;
+  top: 5px;
+  width: 25px;
+  height: 25px;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+}
+
+.delete-btn {
+  right: 5px;
+  background: red;
+}
+
+.edit-btn {
+  left: 5px;
+  background: #007bff;
+}
+
+/* Éditeur */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#edit-canvas {
+  max-width: 90vw;
+  max-height: 80vh;
+  background: white;
+  border: 2px solid #333;
+}
+
+.edit-controls button {
+  margin: 5px;
+  padding: 10px 14px;
+  font-size: 16px;
+}
+#video, #canvas {
+  width: 100%;             /* s’adapte à la largeur de l’écran */
+  max-width: 600px;        /* limite la taille pour PC */
+  aspect-ratio: 210 / 297; /* ratio A4 exact */
+  border: 1px solid black;
+  object-fit: cover;       /* video ou canvas remplira le div */
+}
+
