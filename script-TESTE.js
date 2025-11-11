@@ -12,25 +12,10 @@ let currentEditIndex = null;
 let currentRotation = 0;
 
 // Démarrage de la caméra
-// --- Caméra compatible iOS / Android / Desktop ---
-async function startCamera() {
-  try {
-    const constraints = {
-      audio: false,
-      video: {
-        facingMode: { ideal: "environment" }, // caméra arrière
-      },
-    };
-
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    const video = document.getElementById("video");
-    video.srcObject = stream;
-    await video.play();
-  } catch (err) {
-    console.error("Erreur caméra :", err);
-    alert("Impossible d'accéder à la caméra. Vérifie les permissions.");
-  }
-}
+navigator.mediaDevices
+  .getUserMedia({ video: { facingMode: "environment" } })
+  .then((stream) => (video.srcObject = stream))
+  .catch(() => alert("Impossible d'accéder à la caméra."));
 
 // --- Lancer la caméra uniquement après clic (iOS exige une interaction) ---
 document

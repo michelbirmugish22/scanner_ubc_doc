@@ -102,11 +102,29 @@ button:hover {
   padding: 10px 14px;
   font-size: 16px;
 }
-#video, #canvas {
-  width: 100%;             /* s’adapte à la largeur de l’écran */
-  max-width: 600px;        /* limite la taille pour PC */
-  aspect-ratio: 210 / 297; /* ratio A4 exact */
-  border: 1px solid black;
-  object-fit: cover;       /* video ou canvas remplira le div */
+.camera-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+  position: relative;
 }
+
+ #video, #canvas {
+  width: 595px;   
+  height: 842px; 
+  border: 2px solid #333;
+  object-fit: cover;
+  background: #000;
+  aspect-ratio: 210 / 297;
+} 
+
+
+@media (max-width: 700px) {
+  #video, #canvas {
+    width: 90vw;
+    height: calc(90vw * 1.414); /* ratio A4 sur mobile */
+  }
+}
+
 

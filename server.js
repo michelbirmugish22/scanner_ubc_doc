@@ -21,4 +21,29 @@ app.post("/upload-pdf", (req, res) => {
 
 app.use(express.static(".")); // sert index.html
 
+// 📂 Lister les fichiers PDF déjà scannés
+app.get("/list-pdfs", (req, res) => {
+  fs.readdir(folder, (err, files) => {
+    if (err) return res.status(500).json({ error: "Erreur lecture dossier" });
+    const pdfs = files.filter((f) => f.endsWith(".pdf"));
+    res.json(pdfs);
+  });
+});
+
+// 🗑️ Supprimer un PDF spécifique
+app.post("/delete-pdf", (req, res) => {
+  const { filename } = req.body;
+  const filePath = path.join(folder, filename);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    console.log("🗑️ Supprimé :", filename);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ error: "Fichier non trouvé" });
+  }
+});
+
+// Sert les fichiers PDF pour téléchargement
+app.use("/docs", express.static(folder));
+
 app.listen(3000, () => console.log("🚀 Serveur sur http://localhost:3000"));

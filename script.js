@@ -19,10 +19,16 @@ navigator.mediaDevices
 
 // Capture d’image
 document.getElementById("capture").addEventListener("click", () => {
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  // Dimensions A4 en pixels (rapport 210x297)
+  const a4Width = 595;
+  const a4Height = 742;
+
+  // On redessine la vidéo sur un canvas au format A4
+  canvas.width = a4Width;
+  canvas.height = a4Height;
   const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(video, 0, 0, a4Width, a4Height);
+
   const imageData = canvas.toDataURL("image/jpeg", 1.0);
   capturedPages.push(imageData);
   afficherPages();
@@ -123,7 +129,6 @@ document.getElementById("cancel-edit").addEventListener("click", () => {
 });
 
 // Génération du PDF + envoi serveur
-// Génération du PDF + envoi serveur
 document.getElementById("generate").addEventListener("click", async () => {
   if (capturedPages.length === 0) return alert("Aucune page capturée !");
 
@@ -137,47 +142,84 @@ document.getElementById("generate").addEventListener("click", async () => {
   const pageWidth = 210; // mm
   const pageHeight = 297; // mm
 
-  capturedPages.forEach((imgData, i) => {
+  for (let i = 0; i < capturedPages.length; i++) {
+    const imgData = capturedPages[i];
     if (i > 0) pdf.addPage();
 
-    const img = new Image();
-    img.src = imgData;
+    await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        // Remplir toute la page A4 sans bordure
+        pdf.addImage(imgData, "JPEG", 0, 0, pageWidth, pageHeight);
+        resolve();
+      };
+      img.src = imgData;
+    });
+  }
 
-    // On doit attendre que l'image soit chargée pour calculer les proportions
-    img.onload = () => {
-      const imgWidth = img.width;
-      const imgHeight = img.height;
-      const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-      const displayWidth = imgWidth * ratio;
-      const displayHeight = imgHeight * ratio;
-      const x = (pageWidth - displayWidth) / 2;
-      const y = (pageHeight - displayHeight) / 2;
+  const blob = pdf.output("blob");
+  const url = URL.createObjectURL(blob);
+  downloadLink.href = url;
+  downloadLink.style.display = "inline-block";
 
-      pdf.addImage(imgData, "JPEG", x, y, displayWidth, displayHeight);
-
-      // Si c’est la dernière image, on prépare le lien et l’envoi serveur
-      if (i === capturedPages.length - 1) {
-        const blob = pdf.output("blob");
-        const url = URL.createObjectURL(blob);
-        downloadLink.href = url;
-        downloadLink.style.display = "inline-block";
-
-        // Envoi au serveur
-        const reader = new FileReader();
-        reader.onloadend = async function () {
-          const base64 = reader.result.split(",")[1];
-          await fetch("/upload-pdf", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              pdfBase64: base64,
-              filename: `scan_${Date.now()}.pdf`,
-            }),
-          });
-          alert("PDF envoyé et sauvegardé sur le serveur !");
-        };
-        reader.readAsDataURL(blob);
-      }
-    };
-  });
+  // Sauvegarde serveur
+  const reader = new FileReader();
+  reader.onloadend = async function () {
+    const base64 = reader.result.split(",")[1];
+    await fetch("/upload-pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pdfBase64: base64,
+        filename: `scan_${Date.now()}.pdf`,
+      }),
+    });
+    alert("✅ PDF envoyé et sauvegardé sur le serveur !");
+  };
+  reader.readAsDataURL(blob);
 });
+
+// === Gestion des PDF sauvegardés ===
+const pdfList = document.getElementById("pdf-list");
+document.getElementById("refresh-pdfs").addEventListener("click", chargerPDFs);
+
+// Charger la liste de fichiers
+async function chargerPDFs() {
+  try {
+    const res = await fetch("/list-pdfs");
+    const files = await res.json();
+
+    pdfList.innerHTML = "";
+    if (files.length === 0) {
+      pdfList.innerHTML = "<p>Aucun document scanné pour le moment.</p>";
+      return;
+    }
+
+    files.forEach((file) => {
+      const div = document.createElement("div");
+      div.className = "pdf-item";
+      div.innerHTML = `
+        <a href="/docs/${file}" target="_blank">📄 ${file}</a>
+        <button onclick="supprimerPDF('${file}')">🗑️ Supprimer</button>
+      `;
+      pdfList.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Erreur chargement PDFs :", err);
+    pdfList.innerHTML = "<p>Erreur lors du chargement des fichiers.</p>";
+  }
+}
+
+// Supprimer un fichier PDF
+async function supprimerPDF(filename) {
+  if (!confirm(`Supprimer "${filename}" ?`)) return;
+  await fetch("/delete-pdf", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filename }),
+  });
+  chargerPDFs();
+}
+
+// Charger la liste automatiquement au démarrage
+chargerPDFs();
